@@ -1,70 +1,132 @@
-# Getting Started with Create React App
+# Admin Dashboard
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+Hệ thống quản lý admin với chức năng đăng nhập bảo mật chỉ cho phép admin truy cập.
 
-## Available Scripts
+## 🚀 Tính năng
 
-In the project directory, you can run:
+### 🔐 Hệ thống đăng nhập bảo mật
+- **Chỉ admin mới có thể đăng nhập**: Hệ thống kiểm tra role và chỉ cho phép user có role "admin" truy cập
+- **Bảo vệ route**: Tự động chuyển hướng về trang đăng nhập nếu chưa đăng nhập
+- **Lưu trữ session**: Thông tin admin được lưu trong localStorage
+- **Đăng xuất an toàn**: Xóa session và chuyển về trang đăng nhập
 
-### `npm start`
+### 📊 Dashboard hiện đại
+- **Thống kê tổng quan**: Hiển thị số liệu sản phẩm, đơn hàng, doanh thu
+- **Danh sách sản phẩm**: Grid layout responsive với sản phẩm nằm ngang
+- **Giao diện đẹp**: Thiết kế hiện đại với hiệu ứng hover và animation
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+## 🛠️ Cài đặt và chạy
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+1. **Cài đặt dependencies:**
+```bash
+npm install
+```
 
-### `npm test`
+2. **Chạy JSON Server (cần chạy trước):**
+```bash
+npx json-server --watch db.json --port 3001
+```
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+3. **Chạy ứng dụng:**
+```bash
+npm start
+```
 
-### `npm run build`
+## 👤 Tài khoản Admin
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+### Tài khoản mẫu có sẵn trong db.json:
+- **Email:** admin1@gmail.com
+- **Password:** 123456
+- **Role:** admin
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+### Các tài khoản user thường (không thể đăng nhập):
+- huynxph52088@gmail.com / 123456
+- huycoi1293@gmail.com / 123456
+- huy2005@gmail.com / 12345678
+- huyy@gmail.com / 1234567
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+## 🔒 Bảo mật
 
-### `npm run eject`
+- **Kiểm tra role**: Hệ thống kiểm tra role "admin" trước khi cho phép truy cập
+- **Protected Routes**: Tất cả route đều được bảo vệ bởi ProtectedRoute component
+- **Session Management**: Thông tin admin được lưu an toàn trong localStorage
+- **Auto Redirect**: Tự động chuyển hướng về login nếu chưa đăng nhập
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+## 📁 Cấu trúc dự án
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+```
+admin-dashboard/
+├── src/
+│   ├── components/           # Reusable components
+│   │   ├── Login.js         # Login component
+│   │   ├── ProtectedRoute.js # Route protection
+│   │   └── index.js         # Component exports
+│   ├── pages/               # Page components
+│   │   ├── Dashboard.js     # Main dashboard
+│   │   └── index.js         # Page exports
+│   ├── utils/               # Utility functions
+│   │   ├── auth.js          # Authentication utilities
+│   │   └── constants.js     # Application constants
+│   ├── features/            # Redux slices
+│   │   └── product/
+│   │       └── productSlice.js
+│   ├── App.js               # Main app with routing
+│   ├── App.css              # Global styles
+│   └── index.js             # App entry point
+├── db.json                  # JSON Server database
+├── package.json             # Dependencies
+└── README.md               # Documentation
+```
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+## 🎨 Giao diện
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+- **Login Page**: Form đăng nhập với validation và thông báo lỗi
+- **Dashboard**: Header với thông tin admin, sidebar navigation, stats cards
+- **Product Grid**: Hiển thị sản phẩm với quick actions và hover effects
+- **Responsive Design**: Tương thích với mọi kích thước màn hình
 
-## Learn More
+## 🔧 Công nghệ sử dụng
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+- **React 19**: Frontend framework
+- **React Router DOM**: Client-side routing
+- **Redux Toolkit**: State management
+- **JSON Server**: Mock API server
+- **CSS-in-JS**: Styling with inline styles
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+## 📋 Tính năng chính
 
-### Code Splitting
+### Authentication & Authorization
+- ✅ Role-based access control
+- ✅ Session management
+- ✅ Protected routes
+- ✅ Secure logout
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+### Dashboard Features
+- ✅ Product management
+- ✅ Statistics overview
+- ✅ Responsive design
+- ✅ Loading states
+- ✅ Error handling
 
-### Analyzing the Bundle Size
+### Code Organization
+- ✅ Modular component structure
+- ✅ Utility functions
+- ✅ Constants management
+- ✅ Clean imports/exports
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+## ⚠️ Lưu ý
 
-### Making a Progressive Web App
+- Chỉ tài khoản có role "admin" mới có thể đăng nhập
+- User thường sẽ nhận thông báo lỗi khi cố gắng đăng nhập
+- Cần chạy JSON Server trước khi sử dụng ứng dụng
+- Đảm bảo port 3001 không bị sử dụng bởi ứng dụng khác
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+## 🚀 Deployment
 
-### Advanced Configuration
+Để build ứng dụng cho production:
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+```bash
+npm run build
+```
 
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+Build files sẽ được tạo trong thư mục `build/`.

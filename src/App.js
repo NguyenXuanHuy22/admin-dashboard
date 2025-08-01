@@ -1,24 +1,33 @@
-import logo from './logo.svg';
-import './App.css';
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { Dashboard } from './pages';
+import { Login, ProtectedRoute } from './components';
+import ProductDetail from './pages/ProductDetail'; // ✅ Bổ sung dòng này
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <Router>
+      <Routes>
+        {/* Public route - Login */}
+        <Route path="/login" element={<Login />} />
+        
+        {/* Public route - Xem chi tiết sản phẩm */}
+        <Route path="/products/:id" element={<ProductDetail />} />
+
+        {/* Protected route - Dashboard */}
+        <Route 
+          path="/" 
+          element={
+            <ProtectedRoute>
+              <Dashboard />
+            </ProtectedRoute>
+          } 
+        />
+
+        {/* Redirect bất kỳ route không tồn tại nào về "/" */}
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </Router>
   );
 }
 
