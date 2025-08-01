@@ -17,6 +17,8 @@ const ProductDetail = () => {
     description: '',
     variants: [],
     image: '',
+    category: '',
+    status: 'còn hàng',
   });
   const [previewImage, setPreviewImage] = useState(null);
 
@@ -32,11 +34,11 @@ const ProductDetail = () => {
   }, [product]);
 
   const handleVariantChange = (index, field, value) => {
-  const updatedVariants = editData.variants.map((variant, i) =>
-    i === index ? { ...variant, [field]: value } : variant
-  );
-  setEditData({ ...editData, variants: updatedVariants });
-};
+    const updatedVariants = editData.variants.map((variant, i) =>
+      i === index ? { ...variant, [field]: value } : variant
+    );
+    setEditData({ ...editData, variants: updatedVariants });
+  };
 
 
   const handleImageUpload = (e) => {
@@ -51,7 +53,7 @@ const ProductDetail = () => {
   const handleUpdate = () => {
     dispatch(updateProductById({ id, updatedProduct: editData }));
     setIsEditOpen(false);
-     window.location.reload(); 
+    window.location.reload();
   };
 
   if (loading || !product) return <p style={{ padding: 20 }}>Đang tải sản phẩm...</p>;
@@ -64,10 +66,15 @@ const ProductDetail = () => {
         <img src={product.image} alt={product.name} style={styles.image} />
         <div style={styles.info}>
           <h2 style={styles.name}>{product.name}</h2>
+          <h2 style={styles.category}> Loại:{product.category}</h2>
           <p style={styles.price}>{product.price.toLocaleString('vi-VN')}₫</p>
           <p style={styles.description}>{product.description}</p>
+          <p style={{ color: product.status === 'hết hàng' ? '#e53935' : '#388e3c', fontWeight: 'bold' }}>
+            Trạng thái: {product.status}
+          </p>
 
-          <h4 style={styles.subheading}>Biến thể sản phẩm:</h4>
+
+          <h4 style={styles.subheading}>Số lượng sản phẩm:</h4>
           <div style={styles.variantList}>
             {product.variants.map((v, idx) => (
               <div key={idx} style={styles.variantCard}>
@@ -78,15 +85,29 @@ const ProductDetail = () => {
             ))}
           </div>
 
-          <button style={styles.editButton} onClick={() => setIsEditOpen(true)}>✏️ Chỉnh sửa</button>
+          <button style={styles.editButton} onClick={() => setIsEditOpen(true)}>Chỉnh sửa</button>
         </div>
       </div>
 
-      {/* Modal chỉnh sửa */}
+
       {isEditOpen && (
         <div style={styles.modal}>
           <div style={styles.modalContent}>
-            <h3 style={{ marginBottom: 10 }}>🛠️ Chỉnh sửa sản phẩm</h3>
+            <h3 style={{ marginBottom: 10 }}>Chỉnh sửa sản phẩm</h3>
+
+            <label>Thể loại:</label>
+            <input
+              list="category-options"
+              value={editData.category}
+              onChange={(e) => setEditData({ ...editData, category: e.target.value })}
+              style={styles.input}
+            />
+            <datalist id="category-options">
+              <option value="Áo thể thao" />
+              <option value="Quần short" />
+              <option value="Giày chạy bộ" />
+              <option value="Phụ kiện" />
+            </datalist>
 
             <label>Tên sản phẩm:</label>
             <input
@@ -111,6 +132,17 @@ const ProductDetail = () => {
               style={styles.textarea}
             />
 
+            <label>Trạng thái sản phẩm:</label>
+            <select
+              value={editData.status}
+              onChange={(e) => setEditData({ ...editData, status: e.target.value })}
+              style={styles.input}
+            >
+              <option value="còn hàng">Còn hàng</option>
+              <option value="hết hàng">Hết hàng</option>
+            </select>
+
+
             <label>Chọn hình ảnh:</label>
             <input type="file" accept="image/*" onChange={handleImageUpload} />
             {previewImage && (
@@ -119,7 +151,7 @@ const ProductDetail = () => {
 
             <h4 style={styles.subheading}>Biến thể (Size - Màu - Số lượng):</h4>
             {editData.variants.map((variant, index) => (
-              <div key={index} style={styles.variantRow}>
+              <div key={index} style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
                 <input
                   type="text"
                   placeholder="Size"
@@ -141,12 +173,29 @@ const ProductDetail = () => {
                   onChange={(e) => handleVariantChange(index, 'quantity', +e.target.value)}
                   style={styles.variantInput}
                 />
+                <button
+                  onClick={() => {
+                    const updated = [...editData.variants];
+                    updated.splice(index, 1); // xóa phần tử index
+                    setEditData({ ...editData, variants: updated });
+                  }}
+                  style={{
+                    backgroundColor: '#f44336',
+                    color: 'white',
+                    border: 'none',
+                    padding: '4px 10px',
+                    borderRadius: 4,
+                    cursor: 'pointer',
+                  }}
+                >
+                  Xóa
+                </button>
               </div>
             ))}
 
             <div style={styles.modalButtons}>
-              <button onClick={handleUpdate} style={styles.saveButton}>💾 Lưu</button>
-              <button onClick={() => setIsEditOpen(false)} style={styles.cancelButton}>❌ Hủy</button>
+              <button onClick={handleUpdate} style={styles.saveButton}>Lưu</button>
+              <button onClick={() => setIsEditOpen(false)} style={styles.cancelButton}>Hủy</button>
             </div>
           </div>
         </div>

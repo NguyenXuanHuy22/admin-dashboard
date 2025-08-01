@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import { fetchProducts } from '../features';
+import { fetchProducts, addproduct } from '../features/product/productSlice';
 import { getAdminUser, removeAdminUser } from '../utils/auth';
 import { LOADING_MESSAGES, ERROR_MESSAGES } from '../utils/constants';
+
 
 function Dashboard() {
   const dispatch = useDispatch();
@@ -11,6 +12,10 @@ function Dashboard() {
   const { items, status } = useSelector(state => state.product);
   const [adminUser, setAdminUser] = useState(null);
   const [selectedProduct, setSelectedProduct] = useState(null);
+  const [editData, setEditData] = useState(null);
+  const [previewImage, setPreviewImage] = useState(null);
+  const [isEditOpen, setIsEditOpen] = useState(false);
+
 
   useEffect(() => {
     dispatch(fetchProducts());
@@ -26,6 +31,48 @@ function Dashboard() {
     removeAdminUser();
     navigate('/login');
   };
+
+  // Xử lý chọn ảnh và xem trước
+  const handleImageUpload = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setPreviewImage(reader.result);
+        setEditData(prev => ({ ...prev, image: reader.result }));
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  // Xử lý thay đổi biến thể sản phẩm
+  const handleVariantChange = (index, key, value) => {
+    const newVariants = [...editData.variants];
+    newVariants[index][key] = value;
+    setEditData({ ...editData, variants: newVariants });
+  };
+  const emptyProduct = {
+    name: '',
+    price: '',
+    description: '',
+    category: '',
+    image: '',
+    variants: [{ size: '', color: '', quantity: '' }],
+    status: 'còn hàng',
+  };
+
+  const handleOpenAdd = () => {
+    setEditData(emptyProduct);
+    setPreviewImage(null);
+    setIsEditOpen(true);
+  };
+
+
+  const handleAddNewProduct = () => {
+    dispatch(addproduct(editData));
+    setIsEditOpen(false)
+    window.location.reload();
+  }
 
   return (
     <div style={styles.container}>
@@ -92,10 +139,142 @@ function Dashboard() {
         <main style={styles.content}>
           <div style={styles.contentHeader}>
             <h2 style={styles.contentTitle}>Danh sách sản phẩm</h2>
-            <button style={styles.addButton}>
+
+            <button style={styles.addButton} onClick={handleOpenAdd} >
               <span style={styles.addIcon}>+</span>
               Thêm sản phẩm
             </button>
+
+            {isEditOpen && (
+              <div style={styles.modal}>
+                <div style={styles.modalContent}>
+                  <h3 style={{ marginBottom: 16 }}>Thêm sản phẩm mới</h3>
+
+                  <label>Thể loại:</label>
+                  <input
+                    list="category-options"
+                    value={editData.category}
+                    onChange={(e) => setEditData({ ...editData, category: e.target.value })}
+                    style={styles.input}
+                  />
+                  <datalist id="category-options">
+                    <option value="Áo thể thao" />
+                    <option value="Áo bóng đá" />
+                    <option value="Quần Áo chạy bộ" />
+                    <option value="Quần áo cầu lông" />
+                  </datalist>
+                  
+                  <label>Tên sản phẩm:</label>
+                  <input
+                    type="text"
+                    value={editData.name}
+                    onChange={(e) => setEditData({ ...editData, name: e.target.value })}
+                    style={styles.input}
+                  />
+
+                  <label>Giá:</label>
+                  <input
+                    type="number"
+                    value={editData.price}
+                    onChange={(e) => setEditData({ ...editData, price: +e.target.value })}
+                    style={styles.input}
+                  />
+
+                  <label>Mô tả:</label>
+                  <textarea
+                    value={editData.description}
+                    onChange={(e) => setEditData({ ...editData, description: e.target.value })}
+                    style={styles.textarea}
+                  />
+                  <label>Trạng thái:</label>
+                  <select
+                    value={editData.status}
+                    onChange={(e) => setEditData({ ...editData, status: e.target.value })}
+                    style={styles.input}
+                  >
+                    <option value="còn hàng">Còn hàng</option>
+                    <option value="hết hàng">Hết hàng</option>
+                  </select>
+
+                  <label>Chọn hình ảnh:</label>
+                  <input type="file" accept="image/*" onChange={handleImageUpload} />
+                  {previewImage && (
+                    <img src={previewImage} alt="Preview" style={{ width: 150, height: 'auto', marginTop: 10 }} />
+                  )}
+
+                  <h4 style={{ marginTop: 20 }}> Biến thể:</h4>
+                  {editData.variants.map((variant, index) => (
+                    <div key={index} style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+                      <input
+                        type="text"
+                        placeholder="Size"
+                        value={variant.size}
+                        onChange={(e) => handleVariantChange(index, 'size', e.target.value)}
+                        style={styles.variantInput}
+                      />
+                      <input
+                        type="text"
+                        placeholder="Màu"
+                        value={variant.color}
+                        onChange={(e) => handleVariantChange(index, 'color', e.target.value)}
+                        style={styles.variantInput}
+                      />
+                      <input
+                        type="number"
+                        placeholder="Số lượng"
+                        value={variant.quantity}
+                        onChange={(e) => handleVariantChange(index, 'quantity', +e.target.value)}
+                        style={styles.variantInput}
+                      />
+                      <button
+                        onClick={() => {
+                          const updated = editData.variants.filter((_, i) => i !== index);
+                          setEditData({ ...editData, variants: updated });
+                        }}
+                        style={{
+                          backgroundColor: '#f44336',
+                          color: '#fff',
+                          border: 'none',
+                          padding: '6px 10px',
+                          borderRadius: 4,
+                          cursor: 'pointer',
+                        }}
+                      >
+                        Xoá
+                      </button>
+                    </div>
+                  ))}
+
+                  {/* ➕ Thêm biến thể mới */}
+                  <button
+                    onClick={() =>
+                      setEditData((prev) => ({
+                        ...prev,
+                        variants: [...prev.variants, { size: '', color: '', quantity: 0 }],
+                      }))
+                    }
+                    style={{
+                      marginTop: 10,
+                      marginBottom: 20,
+                      padding: '8px 12px',
+                      backgroundColor: '#2196F3',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: '6px',
+                      cursor: 'pointer',
+                      fontWeight: 'bold',
+                    }}
+                  >
+                    Thêm số lượng
+                  </button>
+
+                  <div style={styles.modalButtons}>
+                    <button onClick={handleAddNewProduct} style={styles.saveButton}>Thêm</button>
+                    <button onClick={() => setIsEditOpen(false)} style={styles.cancelButton}>Hủy</button>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Stats Cards */}
@@ -135,11 +314,6 @@ function Dashboard() {
           <div style={styles.productsSection}>
             <div style={styles.sectionHeader}>
               <h3 style={styles.sectionTitle}>Sản phẩm nổi bật</h3>
-              <div style={styles.viewOptions}>
-                <button style={styles.viewButton}>Tất cả</button>
-                <button style={styles.viewButton}>Mới nhất</button>
-                <button style={styles.viewButton}>Bán chạy</button>
-              </div>
             </div>
 
             <div style={styles.productList}>
@@ -158,43 +332,66 @@ function Dashboard() {
               )}
 
               {status === 'succeeded' && (
-                <div style={styles.productsGrid}>
-                  {items.map(product => (
-                    <div key={product.id} style={styles.productCard}>
-                      <div style={styles.productImageContainer}>
-                        <img
-                          src={product.image}
-                          alt={product.name}
-                          style={styles.productImage}
-                        />
-                        <div style={styles.productOverlay}>
-                          <button style={styles.quickAction}>👁️</button>
-                          <button style={styles.quickAction}>✏️</button>
-                          <button style={styles.quickAction}>🗑️</button>
+                <>
+                  {/* Sản phẩm còn hàng */}
+                  <div style={styles.productsGrid}>
+                    {items.filter(p => p.status === 'còn hàng').map(product => (
+                      <div key={product.id} style={styles.productCard}>
+                        <div style={styles.productImageContainer}>
+                          <img src={product.image} alt={product.name} style={styles.productImage} />
+                        </div>
+                        <div style={styles.productInfo}>
+                          <h4 style={styles.productName}>{product.name}</h4>
+                          <p style={{ ...styles.productDescription, ...styles.clampDescription }}>
+                            {product.description || 'Mô tả sản phẩm...'}
+                          </p>
+                          <div style={styles.productMeta}>
+                            <span style={styles.productPrice}>
+                              {product.price.toLocaleString()} VNĐ
+                            </span>
+                            <p style={{ fontSize: 14, marginTop: 4, color: '#4CAF50' }}>Trạng thái: {product.status}</p>
+                          </div>
+                          <div style={styles.productActions}>
+                            <button style={styles.actionButton} onClick={() => navigate(`/products/${product.id}`)}>
+                              Xem chi tiết
+                            </button>
+                          </div>
                         </div>
                       </div>
-                      <div style={styles.productInfo}>
-                        <h4 style={styles.productName}>{product.name}</h4>
-                        <p style={{ ...styles.productDescription, ...styles.clampDescription }}>
-                          {product.description || 'Mô tả sản phẩm...'}
-                        </p>
-                        <div style={styles.productMeta}>
-                          <span style={styles.productPrice}>
-                            {product.price.toLocaleString()} VNĐ
-                          </span>
+                    ))}
+                  </div>
 
+                  {/* Sản phẩm hết hàng */}
+                  <h3 style={{ margin: '30px 0 10px', fontWeight: 'bold' }}>Sản phẩm hết hàng</h3>
+                  <div style={styles.productsGrid}>
+                    {items.filter(p => p.status === 'hết hàng').map(product => (
+                      <div key={product.id} style={styles.productCard}>
+                        <div style={styles.productImageContainer}>
+                          <img src={product.image} alt={product.name} style={styles.productImage} />
                         </div>
-                        <div style={styles.productActions}>
-
-                          <button style={styles.actionButton} onClick={() => navigate(`/products/${product.id}`)}>
-                            Xem chi tiết
-                          </button>
+                        <div style={styles.productInfo}>
+                          <h4 style={styles.productName}>{product.name}</h4>
+                          <p style={{ ...styles.productDescription, ...styles.clampDescription }}>
+                            {product.description || 'Mô tả sản phẩm...'}
+                          </p>
+                          <div style={styles.productMeta}>
+                            <span style={styles.productPrice}>
+                              {product.price.toLocaleString()} VNĐ
+                            </span>
+                            <p style={{ fontSize: 14, marginTop: 4, color: '#f44336' }}>Trạng thái: {product.status}</p>
+                          </div>
+                          <div style={styles.productActions}>
+                            <button style={styles.actionButton} onClick={() => navigate(`/products/${product.id}`)}>
+                              Xem chi tiết
+                            </button>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  ))}
-                </div>
+                    ))}
+                  </div>
+                </>
               )}
+
             </div>
           </div>
         </main>
@@ -625,6 +822,83 @@ const styles = {
     border: 'none',
     cursor: 'pointer',
     color: '#64748b',
+  },
+  modal: {
+    position: 'fixed',
+    top: 0,
+    left: 0,
+    zIndex: 9999,
+    width: '100vw',
+    height: '100vh',
+    backgroundColor: 'rgba(0, 0, 0, 0.4)', // overlay mờ
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+  },
+  modalContent: {
+    backgroundColor: '#fff',
+    borderRadius: '12px',
+    maxWidth: '650px',
+    width: '100%',
+    maxHeight: '90vh',
+    overflowY: 'auto',
+    padding: '24px',
+    boxShadow: '0 8px 24px rgba(0,0,0,0.2)',
+    animation: 'fadeIn 0.3s ease',
+  },
+  input: {
+    width: '100%',
+    padding: '10px 12px',
+    marginBottom: '12px',
+    borderRadius: '6px',
+    border: '1px solid #ccc',
+    fontSize: '16px',
+  },
+  textarea: {
+    width: '100%',
+    padding: '10px 12px',
+    height: '80px',
+    borderRadius: '6px',
+    border: '1px solid #ccc',
+    fontSize: '16px',
+    resize: 'vertical',
+    marginBottom: '12px',
+  },
+  variantRow: {
+    display: 'flex',
+    gap: 10,
+    marginBottom: 10,
+  },
+  variantInput: {
+    flex: 1,
+    padding: '8px 10px',
+    borderRadius: '6px',
+    border: '1px solid #ccc',
+  },
+  modalButtons: {
+    marginTop: 20,
+    display: 'flex',
+    justifyContent: 'flex-end',
+    gap: 12,
+  },
+  saveButton: {
+    padding: '10px 16px',
+    backgroundColor: '#4CAF50',
+    color: '#fff',
+    border: 'none',
+    borderRadius: '6px',
+    cursor: 'pointer',
+    fontWeight: 'bold',
+  },
+  cancelButton: {
+    padding: '10px 16px',
+    backgroundColor: '#f44336',
+    color: '#fff',
+    border: 'none',
+    borderRadius: '6px',
+    cursor: 'pointer',
+    fontWeight: 'bold',
   },
 };
 
