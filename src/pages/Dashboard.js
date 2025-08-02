@@ -4,6 +4,9 @@ import { useNavigate } from 'react-router-dom';
 import { fetchProducts, addproduct } from '../features/product/productSlice';
 import { getAdminUser, removeAdminUser } from '../utils/auth';
 import { LOADING_MESSAGES, ERROR_MESSAGES } from '../utils/constants';
+import Ordermanagement from './ordermanagement';
+import { Link } from 'react-router-dom';
+
 
 
 function Dashboard() {
@@ -108,18 +111,15 @@ function Dashboard() {
             <h2 style={styles.sidebarTitle}>Quản lý</h2>
           </div>
           <nav style={styles.nav}>
-            <a href="#" style={styles.navItem}>
-              <span style={styles.navIcon}>📊</span>
-              Dashboard
-            </a>
-            <a href="#" style={styles.navItem}>
+            
+            <Link to="/Dashboard"  style={styles.navItem}>
               <span style={styles.navIcon}>📦</span>
               Sản phẩm
-            </a>
-            <a href="#" style={styles.navItem}>
+            </Link>
+            <Link to="/orders" style={styles.navItem}>
               <span style={styles.navIcon}>🛒</span>
-              Đơn hàng
-            </a>
+              Quản lý Đơn hàng
+            </Link>
             <a href="#" style={styles.navItem}>
               <span style={styles.navIcon}>👥</span>
               Quản lý tài khoản
@@ -163,7 +163,7 @@ function Dashboard() {
                     <option value="Quần Áo chạy bộ" />
                     <option value="Quần áo cầu lông" />
                   </datalist>
-                  
+
                   <label>Tên sản phẩm:</label>
                   <input
                     type="text"

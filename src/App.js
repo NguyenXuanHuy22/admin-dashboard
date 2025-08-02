@@ -3,6 +3,8 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { Dashboard } from './pages';
 import { Login, ProtectedRoute } from './components';
 import ProductDetail from './pages/ProductDetail'; // ✅ Bổ sung dòng này
+import OrderManagement from './pages/ordermanagement';
+
 
 function App() {
   return (
@@ -14,6 +16,7 @@ function App() {
         {/* Public route - Xem chi tiết sản phẩm */}
         <Route path="/products/:id" element={<ProductDetail />} />
 
+        <Route path="/orders" element={<OrderManagement />} />
         {/* Protected route - Dashboard */}
         <Route 
           path="/" 
